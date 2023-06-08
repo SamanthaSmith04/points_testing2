@@ -2,6 +2,7 @@
 import rclpy
 from rclpy.node import Node
 from services.srv import DownsampleSrvInfo
+from points_testing2 import corrector_functions
 
 
 class DownsampleService(Node):
@@ -10,8 +11,9 @@ class DownsampleService(Node):
         self.srv = self.create_service(DownsampleSrvInfo, 'downsample', self.downsample_callback)
     
     def downsample_callback(self, request, response):
-        response.test = 1
-        self.get_logger().info('Incoming request\n')
+        response.corrected_poses, response.delta_values = corrector_functions.downsample(request.epsilon, request.input_file)
+
+        self.get_logger().info('Incoming request :)\n')
         return response
     
 def main(args=None):

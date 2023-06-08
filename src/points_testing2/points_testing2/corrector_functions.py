@@ -5,11 +5,13 @@ import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-import rdp_algorithm
+from points_testing2 import rdp_algorithm
 import time
+from geometry_msgs.msg import PoseArray
+from geometry_msgs.msg import Pose
 
 global file_path
-file_path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__)))) + "/points_data/"
+file_path = "/home/samubuntu/AA_DEVEL/ws_points_testing2/src/points_testing2/points_testing2/"
 
 
 
@@ -35,18 +37,17 @@ def main():
         maxYValue: the maximum y value to generate points for
         inPointSpacing: the spacing between the points to generate
 """
-def downsample(outPointSpacing, inputFileName, outputFileName, minYValue, maxYValue, inPointSpacing, display):
+def downsample(outPointSpacing, inputFileName):
     
     points =[]
+    max =[]
     startTime = time.perf_counter()
 
     if (inputFileName != ""):
         points = get_points_from_file(inputFileName)
     else:
-        print("Generating points...")
-        points = generatePoints(minYValue, maxYValue, inPointSpacing) ##GENERATE POINTS
-        #points= generate_raster(inPointSpacing) ##GENERATE RASTER
-        print(len(points).__str__() + " points generated!")
+        print("Invalid file name!")
+        exit()
 
     corrections = correctPoints(points, outPointSpacing)
 
@@ -54,24 +55,27 @@ def downsample(outPointSpacing, inputFileName, outputFileName, minYValue, maxYVa
     max = delta(points, corrections)
 
     
-    #write corrected points to the output file
-    if outputFileName != "":
-        deltaOutput = outputFileName.split(".")[0] + "_delta.txt"
-        write_corrections_to_file(corrections, outputFileName)
-        write_delta_to_file(deltaOutput, max)
-    else:
-        print("Corrected Points:")
-        print(corrections)
-        print("Delta Values:")
-        for i in range(len(corrections)-1):
-            print(max[i].__str__())
-
+    #write corrected points to a pose array
+    poseArray = PoseArray()
+    fixed_poses = []
+    for i in range(len(points)):
+        pose = Pose()
+        pose.position.x = points[i,0]
+        pose.position.y = points[i,1]
+        pose.position.z = points[i,2]
+        pose.orientation.x = 0.0
+        pose.orientation.y = 0.0
+        pose.orientation.z = 0.0
+        pose.orientation.w = 1.0
+        fixed_poses.append(pose)
+        
+    poseArray.poses = fixed_poses
+    
     endTime = time.perf_counter()
     print("Time to run: " + (endTime - startTime).__str__() + "s")
     print("Number of points used in correction: " + len(corrections).__str__())
 
-    if (display == ""):
-        plot_points(points, corrections)
+    return poseArray, max
     
 
 """
@@ -83,7 +87,7 @@ def downsample(outPointSpacing, inputFileName, outputFileName, minYValue, maxYVa
 """
 def delta(points, corrections):
     index = 0
-    max = np.zeros(len(corrections) - 1)
+    max = [0.0] * (len(corrections) - 1)
     for cPos in range(len(corrections) - 1):
         while points[index,0] != corrections[cPos+1,0] or points[index,1] != corrections[cPos+1,1] or points[index,2] != corrections[cPos+1,2]:
             dist = rdp_algorithm.perpendicular_distance(points[index], corrections[cPos], corrections[cPos+1])

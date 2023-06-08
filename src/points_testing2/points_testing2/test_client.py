@@ -13,7 +13,8 @@ class TestClient(Node):
         self.req = DownsampleSrvInfo.Request()
 
     def send_request(self):
-        self.req.t = 10
+        self.req.input_file = "full_points.txt"
+        self.req.epsilon =  0.1
         self.future = self.cli.call_async(self.req)
 
 def main(args=None):
@@ -32,8 +33,7 @@ def main(args=None):
                 test_client.get_logger().info(
                     'Service call failed %r' % (e,))
             else:
-                test_client.get_logger().info(
-                    'Result of test')
+                print(response.corrected_poses)
             break
 
     test_client.destroy_node()
