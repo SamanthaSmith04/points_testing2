@@ -1,3 +1,5 @@
-int64 t
+string input_file
+float64 epsilon
 ---
-int64 test
+geometry_msgs/PoseArray corrected_poses
+float64[] delta_values
