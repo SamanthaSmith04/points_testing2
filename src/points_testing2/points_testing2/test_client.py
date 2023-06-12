@@ -21,9 +21,9 @@ class TestClient(Node):
         self.req = DownsampleSrvInfo.Request()
 
     def send_request(self):
-        self.req.input_file = "points.txt"
+        self.req.input_file = "line.txt"
         self.req.epsilon = 0.05
-        self.req.angle_threshold = 5.0
+        self.req.angle_threshold = 180.0 #degrees
         self.future = self.cli.call_async(self.req)
 
 class PublishOrientationNode(Node):
