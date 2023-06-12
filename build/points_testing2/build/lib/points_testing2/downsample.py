@@ -11,8 +11,7 @@ class DownsampleService(Node):
         self.srv = self.create_service(DownsampleSrvInfo, 'downsample', self.downsample_callback)
     
     def downsample_callback(self, request, response):
-        response.corrected_poses, response.delta_values = corrector_functions.downsample(request.epsilon, request.input_file)
-
+        response.corrected_poses = corrector_functions.downsample(request.epsilon, request.angle_threshold, request.input_file)
         self.get_logger().info('Incoming request :)\n')
         return response
     
