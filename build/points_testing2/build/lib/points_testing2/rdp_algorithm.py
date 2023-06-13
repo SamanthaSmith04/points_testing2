@@ -2,7 +2,7 @@
 #python implementation of the ramer douglas peucker algorithm
 
 import numpy as np
-
+from geometry_msgs.msg import Quaternion
 
 def main():
     print("RDP Implementation in python")
@@ -13,29 +13,26 @@ def main():
         epsilon: maximum distance between a point and a line segment
 """
 def rdp_run(poses, epsilon, angleThreshold):
-    angleThreshold = np.radians(angleThreshold)
     max_dist = 0
-    max_rotation = 0
+    max_rotation = -360
     pointIndex = 0
     rotIndex = 0
     index = 0
     d = 0
     for i in range(1, len(poses)-1):
         d = perpendicular_distance(poses[i], poses[0], poses[-1])
-        r = angular_distance(poses[i], poses[0], poses[-1])
+        r = angular_distance(poses[i], poses[0])
         if d > max_dist:
             max_dist = d
             pointIndex = i
         if r > max_rotation:
             max_rotation = r
-            print(np.degrees(max_rotation))
             rotIndex = i
     
-    if (rotIndex < pointIndex and max_rotation > angleThreshold):
-        index = rotIndex
-    else:
+    if (rotIndex > pointIndex):
         index = pointIndex
-    #find next smallest gap
+    else:
+        index = rotIndex
     if max_dist > epsilon or max_rotation > angleThreshold:
         
         poses1 = poses[:index+1]
@@ -57,10 +54,10 @@ def rdp_run(poses, epsilon, angleThreshold):
         last_pose: last point of the line segment
 """
 def perpendicular_distance(current_pose, first_pose, last_pose):
-    line = np.array([
-        last_pose.position.x - first_pose.position.x,
-        last_pose.position.y - first_pose.position.y,
-        last_pose.position.z - first_pose.position.z
+    last_point = np.array([
+        last_pose.position.x,
+        last_pose.position.y,
+        last_pose.position.z   
     ])
 
     current_point = np.array([
@@ -74,31 +71,33 @@ def perpendicular_distance(current_pose, first_pose, last_pose):
         first_pose.position.y,
         first_pose.position.z
     ])
+
+    line = last_point - first_point
     return np.linalg.norm(np.cross(line, first_point-current_point))/np.linalg.norm(line)
 
-def angular_distance(current_pose, first_pose, last_pose):
-    current_angle = euler_from_quaternion(current_pose.orientation)
+def angular_distance(current_pose, first_pose):
+    """current_angle = euler_from_quaternion(current_pose.orientation)
     first_angle = euler_from_quaternion(first_pose.orientation)
-    last_angle = euler_from_quaternion(last_pose.orientation)
 
-
-    dot_product1 = np.dot(current_angle, first_angle)
-    dot_product2 = np.dot(current_angle, last_angle)
-    if (dot_product1 > 1):
-        angle1 = 0
-    elif (dot_product1 < -1):
-        angle1 = np.pi
-    else:
-        angle1 = 2 * np.arccos(np.abs(dot_product1))
-    
-    if (dot_product2 > 1):
-        angle2 = 0
-    elif (dot_product2 < -1):
-        angle2 = np.pi
-    else:
-        angle2 = 2 * np.arccos(np.abs(dot_product2))
-    difference = abs(angle1 - angle2)
-    return angle1
+    dot_product = np.dot(current_angle, first_angle)
+    if dot_product < -1:
+        dot_product = -1
+    elif dot_product > 1:
+        dot_product = 1
+    angle = np.arccos(2 * (dot_product ** 2) - 1)
+    angle = np.degrees(angle)
+    #if (angle >= 180):
+     #   angle = 180 - angle
+    return angle"""
+    current_angle = current_pose.orientation
+    w = first_pose.orientation.w
+    x = -1* first_pose.orientation.x
+    y = -1*first_pose.orientation.y
+    z = -1*first_pose.orientation.z
+    first_angle_inverse = Quaternion(x,y,z,w)
+    difference = current_angle * first_angle_inverse
+    angle_difference = 2 * np.arccos(np.abs(difference.w))
+    return angle_difference
 
 def euler_from_quaternion(quaternion):
     x = quaternion.x
@@ -106,12 +105,24 @@ def euler_from_quaternion(quaternion):
     z = quaternion.z
     w = quaternion.w
 
-    roll = np.arctan2(2 * (w * x + y * z), 1 - 2 * (x**2 + y**2))
+    magnitude = np.sqrt(w**2 + x**2 + y**2 + z**2)
+
+    w = correctValues(w) / magnitude
+    x = correctValues(x) / magnitude
+    y = correctValues(y) / magnitude
+    z = correctValues(z) / magnitude
+
+    roll = np.arctan2(2 * (w * x + y * z), 1 - 2 * (x**2 + y**2))   
     pitch = np.arcsin(2 * (w * y - z * x))
     yaw = np.arctan2(2 * (w * z + x * y), 1 - 2 * (y**2 + z**2))
     return roll, pitch, yaw    
 
-
+def correctValues(value):
+    if (value > 1):
+        value = 1
+    elif (value < -1):
+        value = -1
+    return value
 
 if __name__ == '__main__':
     main()
