@@ -17,7 +17,7 @@ def main():
     print("=====================================================")
     print("                     Point Tests                     ")
     print("=====================================================")
-    t = downsample(0.1, 0.1, "full_points.txt")
+    t = downsample(0.1, 10.0, "full_points.txt")
 
 """
     Downsample function
@@ -33,7 +33,7 @@ def main():
 """
 def downsample(epsilon, angleThreshold, inputFileName):
     
-    max = [1.0, 2.0, 3.0]
+    max = []
     startTime = time.perf_counter()
 
     if (inputFileName != ""):
@@ -43,8 +43,8 @@ def downsample(epsilon, angleThreshold, inputFileName):
         exit()
     print("Processing " + len(points).__str__() + " points...")
     corrections = rdp_algorithm.rdp_run(points, epsilon, angleThreshold) #test PROBLEM HERE
-    #print("Calculating delta values...")
-    #max = delta(points, corrections)
+    print("Calculating delta values...")
+    max_dist, max_angle = delta(points, corrections)
     endTime = time.perf_counter()
     print("Time to run: " + (endTime - startTime).__str__() + "s")
 
@@ -55,8 +55,10 @@ def downsample(epsilon, angleThreshold, inputFileName):
         pose_array.poses.append(corrections[i,0])
 
     print("Number of points used in correction: " + len(corrections).__str__())
-
-    return pose_array#, max
+    for i in range(len(max_dist)):
+        print("Delta " + (i+1).__str__() + ": " + max_dist[i].__str__())
+        print("Angle " + (i+1).__str__() + ": " + max_angle[i].__str__())
+    return pose_array#, max_dist
     
 
 """
@@ -68,16 +70,20 @@ def downsample(epsilon, angleThreshold, inputFileName):
 """
 def delta(points, corrections):
     index = 0
-    corr_len = len(corrections.poses)
-    max = [0.0] * (corr_len - 1)
+    corr_len = len(corrections)
+    dist = [0.0]* (corr_len - 1)
+    angles = [0.0]* (corr_len - 1)
     for cPos in range(corr_len - 1):
-        while points.poses[index] != corrections.poses[cPos]:
-            dist = rdp_algorithm.perpendicular_distance(points.poses[index], corrections[cPos], corrections[cPos+1])
-            if (abs(dist) > abs(max[cPos])):
-                max[cPos] = dist
+        while points[index] != corrections[cPos,0]:
+            d = rdp_algorithm.perpendicular_distance(points[index], corrections[cPos,0], corrections[cPos+1,0])
+            angle = rdp_algorithm.angular_distance(points[index], corrections[cPos,0])
+            if (abs(d) > abs(dist[cPos])):
+                dist[cPos] = d
+            if (abs(angle) > abs(angles[cPos])):
+                angles[cPos] = angle
             index += 1
     print("Delta values calculated!")
-    return max
+    return dist, angles
 
 
 """
