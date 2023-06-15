@@ -10,8 +10,9 @@ def main():
 
 """
     Parameters:
-        pose_list: list of points to be simplified
-        epsilon: maximum distance between a point and a line segment
+        poses: a pose list to be processed
+        epsilon: the maximum spacing between the original data points and the line between the correction points
+        angleThreshold: the maximum angle between the original data points and the corrected data points about each axis
 """
 global reasons
 reasons = []
@@ -32,6 +33,7 @@ def rdp_run(poses, epsilon, angleThreshold):
             rotIndex = i 
     #if there is a point that exceeds epsilon, split the list and run rdp on both halves
     if max_dist > epsilon: #GETTING TRAPPED HERE :/
+        print("too big dist")
         
         poses1 = poses[:index+1]
         poses2 = poses[index:]
@@ -42,6 +44,7 @@ def rdp_run(poses, epsilon, angleThreshold):
     #correct spot found
     else:
         if (max_rotation > angleThreshold): #HERE
+            print("too big angle")
             print(max_rotation)
             poses1 = poses[:rotIndex+1]
             poses2 = poses[rotIndex:]
@@ -51,6 +54,7 @@ def rdp_run(poses, epsilon, angleThreshold):
             
             results = np.vstack((results1[:-1],results2))
         else:
+            print("corrected")
             results = np.vstack((poses[0],poses[-1]))
     return results
     
@@ -87,8 +91,19 @@ def perpendicular_distance(current_pose, first_pose, last_pose):
     out = np.linalg.norm(np.cross(line, np.subtract(first_point, current_point)))/np.linalg.norm(line)
     return out
 
+"""
+    Angular distance function
+    Calculates the maximum rotation about each axis between two poses
+    Parameters:
+        current_pose: the current pose
+        first_pose: the first pose
+    Returns:
+        maximum: the maximum rotation about an axis
+        max_type: the axis that the maximum rotation occurs about
+"""
 def angular_distance(current_pose, first_pose):
     difference = Pose()
+    #get the difference between quaternion orientations
     result = multiply_inv(current_pose, first_pose)
     difference.orientation.x = result[0]
     difference.orientation.y = result[1]
@@ -100,6 +115,7 @@ def angular_distance(current_pose, first_pose):
     r = euler_angles[0]
     p = euler_angles[1]
     y = euler_angles[2]
+    #determine maximum rotation
     max_type = ""
     maximum = max(abs(r),abs(p),abs(y))
     if (maximum == r):
@@ -111,6 +127,16 @@ def angular_distance(current_pose, first_pose):
 
     return maximum, max_type
     
+
+"""
+    Quaternion to Euler angles conversion function
+    Parameters:
+        q: the quaternion to be converted
+    Returns:
+        roll: the roll angle
+        pitch: the pitch angle
+        yaw: the yaw angle
+"""
 def quaternion_to_euler(q):
     x = q.orientation.x
     y = q.orientation.y
@@ -136,7 +162,13 @@ def quaternion_to_euler(q):
 
     return roll, pitch, yaw
 
-
+"""
+    Normalize Quaternion function
+    Parameters:
+        quaternion: the quaternion to be normalized
+    Returns:
+        norm: the normalized quaternion
+"""
 def normalize(quaternion):
     magnitude = np.linalg.norm(quaternion)
     norm = quaternion / magnitude
@@ -144,6 +176,14 @@ def normalize(quaternion):
 
     return norm
 
+
+"""
+    Quaternion multiplication function
+    Multiplies q0 by the inverse of q1
+    Parameters:
+        q0: the first quaternion
+        q1: the second quaternion
+"""
 def multiply_inv(q0,q1):
 
     w0 = q0.orientation.w
