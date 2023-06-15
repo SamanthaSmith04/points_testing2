@@ -120,9 +120,9 @@ class PublishPositionNode(Node):
             end_point.y = self.points_from_poses[i+1].position.y
             end_point.z = self.points_from_poses[i+1].position.z
 
-            line.scale.x = 0.05
-            line.scale.y = 0.05
-            line.scale.z = 0.05
+            line.scale.x = 0.01
+            line.scale.y = 0.01
+            line.scale.z = 0.01
 
             line.color.r = 1.0
             line.color.g = 1.0
@@ -191,12 +191,12 @@ class PublishInitialPoses(Node):
             point.pose.orientation.y = 0.0
             point.pose.orientation.z = 0.0
             point.pose.orientation.w = 1.0
-            point.scale.x = 0.1
-            point.scale.y = 0.1
-            point.scale.z = 0.1
+            point.scale.x = 0.01
+            point.scale.y = 0.01
+            point.scale.z = 0.01
 
             point.color.r = 1.0
-            point.color.g = 1.0
+            point.color.g = 0.0
             point.color.b = 0.0
             point.color.a = 1.0
 
@@ -218,9 +218,9 @@ class PublishInitialPoses(Node):
             end_point.y = self.points_from_poses[i+1].position.y
             end_point.z = self.points_from_poses[i+1].position.z
 
-            line.scale.x = 0.05
-            line.scale.y = 0.05
-            line.scale.z = 0.05
+            line.scale.x = 0.01
+            line.scale.y = 0.01
+            line.scale.z = 0.01
 
             line.color.r = 0.0
             line.color.g = 1.0

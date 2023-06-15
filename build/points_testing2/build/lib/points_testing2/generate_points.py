@@ -12,7 +12,7 @@ def main():
         angle = i * np.pi / 50  # Angle for spiral motion
         quaternion[i] = [1.0, np.cos(angle), np.cos(angle),1.0]  # Quaternion values
 """
-    xvalues, yvalues, zvalues, quaternion = generate_raster(.05)
+    xvalues, yvalues, zvalues, quaternion = generate_raster(.005)
     for i in range(len(xvalues)):
         file.write("" + xvalues[i].__str__() + " " + yvalues[i].__str__() + " " + zvalues[i].__str__() + " " + quaternion[i,0].__str__() + " " + quaternion[i,1].__str__() + " " + quaternion[i,2].__str__() + " " + quaternion[i,3].__str__() + "\n")
     file.close()
