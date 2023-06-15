@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
+#TODO FIX FUNCTION HEADERS
 
 import numpy as np
 from points_testing2 import rdp_algorithm
 import time
 from geometry_msgs.msg import PoseArray
 from geometry_msgs.msg import Pose
-from std_msgs.msg import Float64MultiArray
 
 global file_path
 file_path = "/home/samubuntu/AA_DEVEL/ws_points_testing2/src/points_testing2/points_testing2/"
@@ -35,13 +35,14 @@ def downsample(epsilon, angleThreshold, inputFileName):
     startTime = time.perf_counter()
 
     if (inputFileName != ""):
-        points = get_points_from_file(inputFileName) #test FINE
+        points = PoseArray()
+        points.poses = get_points_from_file(inputFileName)
     else:
         print("Invalid file name!")
         exit()
-    print("Processing " + len(points).__str__() + " points...")
+    print("Processing " + len(points.poses).__str__() + " points...")
     angleThreshold = np.deg2rad(angleThreshold)
-    corrections = rdp_algorithm.rdp_run(points, epsilon, angleThreshold) #test PROBLEM HERE
+    corrections = rdp_algorithm.rdp_run(points.poses, epsilon, angleThreshold) #test PROBLEM HERE
     print("Calculating delta values...")
     max_dist, max_angle = delta(points, corrections)
     endTime = time.perf_counter()
@@ -58,6 +59,12 @@ def downsample(epsilon, angleThreshold, inputFileName):
         print("Delta " + (i+1).__str__() + ": " + max_dist[i].__str__())
         print("Angle " + (i+1).__str__() + ": " + np.rad2deg(max_angle[i]).__str__())
     
+    ##TEMPORARY PRINT CORRECTIONS
+    for i in range(len(pose_array.poses)):
+        print("Pose " + (i+1).__str__() + ":")
+        print("Position: " + pose_array.poses[i].position.__str__())
+        print("Orientation: " + pose_array.poses[i].orientation.__str__())
+    
     return pose_array#, max_dist
     
 
@@ -70,23 +77,20 @@ def downsample(epsilon, angleThreshold, inputFileName):
 """
 def delta(points, corrections):
     index = 0
-    corr_len = len(corrections)
-    #print(corrections)
+    corr_len = len(corrections) -1
     print(":)")
-    #print(rdp_algorithm.angular_distance(points[0], corrections[0,0]))
-    dist = np.zeros(corr_len - 1)
-    angles = np.zeros(corr_len - 1)
-    for cPos in range(corr_len - 1):
-        while points[index].position.x != corrections[cPos+1,0].position.x or points[index].position.y != corrections[cPos+1,0].position.y or points[index].position.z != corrections[cPos+1,0].position.z:
-            d = rdp_algorithm.perpendicular_distance(points[index], corrections[cPos,0], corrections[cPos+1,0])
-            angle, type = rdp_algorithm.angular_distance(points[index], corrections[cPos,0])
+    dist = np.zeros(corr_len)
+    angles = np.zeros(corr_len)
+    for cPos in range(corr_len):
+        while points.poses[index] != corrections[cPos+1,0]:
+            d = rdp_algorithm.perpendicular_distance(points.poses[index], corrections[cPos,0], corrections[cPos+1,0])
+            angle, type = rdp_algorithm.angular_distance(points.poses[index], corrections[cPos,0])
             if (abs(d) > abs(dist[cPos])):
                 dist[cPos] = d
             if (abs(angle) > abs(angles[cPos])):
                 angles[cPos] = angle
             index += 1
     print("Delta values calculated!")
-    #print(dist)
     print(rdp_algorithm.reasons_for_change())
     return dist, angles
 
