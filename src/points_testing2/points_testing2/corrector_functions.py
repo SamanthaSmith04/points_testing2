@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 import numpy as np
-from points_testing2 import rdp_algorithm
+import rdp_algorithm
 import time
 from geometry_msgs.msg import PoseArray
 from geometry_msgs.msg import Pose

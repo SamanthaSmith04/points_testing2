@@ -24,7 +24,7 @@ def rdp_run(poses, epsilon, angleThreshold):
     d = 0
     for i in range(1, len(poses)-1):
         d = perpendicular_distance(poses[i], poses[0], poses[-1])
-        r, type = angular_distance(poses[i], poses[0])
+        r, t = angular_distance(poses[i], poses[0])
         if d > max_dist:
             max_dist = d
             index = i
@@ -32,29 +32,29 @@ def rdp_run(poses, epsilon, angleThreshold):
             max_rotation = r
             rotIndex = i 
     #if there is a point that exceeds epsilon, split the list and run rdp on both halves
-    if max_dist > epsilon: #GETTING TRAPPED HERE :/
-        print("too big dist")
-        
+    if max_dist > epsilon: #GETTING TRAPPED HERE :/   
+        print("Distance threshold exceeded!")     
         poses1 = poses[:index+1]
         poses2 = poses[index:]
         results1 = rdp_run(poses1, epsilon, angleThreshold) 
         
         results2 = rdp_run(poses2, epsilon, angleThreshold)
         results = np.vstack((results1[:-1],results2))
+        
     #correct spot found
     else:
-        if (max_rotation > angleThreshold): #HERE
-            print("too big angle")
-            print(max_rotation)
+        if max_rotation > angleThreshold: #HERE
+            print("Angle threshold exceeded by ", (np.rad2deg(max_rotation) - np.rad2deg(angleThreshold)), " degrees!")
+            print("the angle was ", np.rad2deg(max_rotation), " degrees about the ", t, " axis")
             poses1 = poses[:rotIndex+1]
             poses2 = poses[rotIndex:]
 
             results1 = rdp_run(poses1, epsilon, angleThreshold) 
-            results2 = rdp_run(poses2, epsilon, angleThreshold)
             
-            results = np.vstack((results1[:-1],results2))
+            results = np.vstack((results1[:-1], poses[-1]))
+            print("section complete")
         else:
-            print("corrected")
+            print("Point accepted!")
             results = np.vstack((poses[0],poses[-1]))
     return results
     
@@ -117,13 +117,25 @@ def angular_distance(current_pose, first_pose):
     y = euler_angles[2]
     #determine maximum rotation
     max_type = ""
-    maximum = max(abs(r),abs(p),abs(y))
-    if (maximum == r):
+    maximum = max(abs(r),abs(p),abs(y)) 
+    """
+    print("Maximum: ", np.rad2deg(maximum))
+    print("Roll: ", np.rad2deg(r))
+    print("Pitch: ", np.rad2deg(p))
+    print("Yaw: ", np.rad2deg(y))
+    """
+
+    if (maximum == abs(r)):
+        #maximum = r
         max_type = "roll"
-    elif (maximum == p):
+    elif (maximum == abs(p)):
+        #maximum = p
         max_type = "pitch"
-    elif (maximum == y):
+    elif (maximum == abs(y)):
+        #maximum = y
         max_type = "yaw"
+
+    #print(max_type)
 
     return maximum, max_type
     
@@ -151,7 +163,7 @@ def quaternion_to_euler(q):
     #pitch
     sinp = 2 * (w * y - z * x)
     if abs(sinp) >= 1:
-        pitch = np.sign(sinp) * np.pi/2
+        pitch = np.sign(sinp) * np.pi/2.0
     else:
         pitch = np.arcsin(sinp)
     
