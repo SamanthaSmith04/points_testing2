@@ -44,7 +44,7 @@ def downsample(epsilon, angleThreshold, inputFileName):
     angleThreshold = np.deg2rad(angleThreshold)
     corrections = rdp_algorithm.rdp_run(points.poses, epsilon, angleThreshold) #test PROBLEM HERE
     print("Calculating delta values...")
-    max_dist, max_angle = delta(points, corrections)
+    max_dist, max_angle, min_angle = delta(points, corrections)
     endTime = time.perf_counter()
     print("Time to run: " + (endTime - startTime).__str__() + "s")
 
@@ -57,7 +57,8 @@ def downsample(epsilon, angleThreshold, inputFileName):
     print("Number of points used in correction: " + len(corrections).__str__())
     for i in range(len(max_dist)):
         print("Delta " + (i+1).__str__() + ": " + max_dist[i].__str__())
-        print("Angle " + (i+1).__str__() + ": " + np.rad2deg(max_angle[i]).__str__())
+        print("Max Angle " + (i+1).__str__() + ": " + np.rad2deg(max_angle[i]).__str__())
+        print("Min Angle " + (i+1).__str__() + ": " + np.rad2deg(min_angle[i]).__str__())
     
     ##TEMPORARY PRINT CORRECTIONS
     for i in range(len(pose_array.poses)):
@@ -81,31 +82,37 @@ def delta(points, corrections):
     print(":)")
     dist = np.zeros(corr_len)
     angles = np.zeros(corr_len)
+    max_min = np.zeros(corr_len)
 
     for cPos in range(corr_len):
         while points.poses[index] != corrections[cPos+1,0]:
             d = rdp_algorithm.perpendicular_distance(points.poses[index], corrections[cPos,0], corrections[cPos+1,0])
             if (abs(d) > abs(dist[cPos])):
                 dist[cPos] = d
-            index +=1 
-    print("Delta values calculated!")
+            index +=1
 
     index = 1
     for cPos in range(corr_len):
+        max_min[cPos], type = rdp_algorithm.angular_distance(points.poses[index], corrections[cPos,0])
         while points.poses[index] != corrections[cPos+1,0]:
             angle, type = rdp_algorithm.angular_distance(points.poses[index], corrections[cPos,0])
+            print(angle)
             #print("comparing: \n" + points.poses[index].__str__() + "\n to \n" + corrections[cPos,0].__str__())
             #print("angle: " + angle.__str__())
             if (abs(angle) > abs(angles[cPos])):
                 angles[cPos] = angle
+            elif (abs(angle) < abs(max_min[cPos])):
+                print("min")
+                max_min[cPos] = angle
             index += 1
     print(rdp_algorithm.reasons_for_change())
     for cPos in range(corr_len): 
         angle_between_poses = rdp_algorithm.angular_distance(corrections[cPos,0], corrections[cPos+1,0])
         angle = np.degrees(angle_between_poses[0])
-        print("Max rotation about the ", angle_between_poses[1], " between poses ",cPos, " and ",(cPos+1), ": ", angle)
+        print("Max rotation about the ", angle_between_poses[1], " between poses ",cPos+1, " and ",(cPos+2), ": ", angle)
 
-    return dist, angles
+    print("Delta values calculated!")
+    return dist, angles, max_min
 
 
 """

@@ -50,8 +50,9 @@ def rdp_run(poses, epsilon, angleThreshold):
             poses2 = poses[rotIndex:]
 
             results1 = rdp_run(poses1, epsilon, angleThreshold) 
+            #results2 = rdp_run(poses2, epsilon, angleThreshold)
             
-            results = np.vstack((results1[:-1], poses[-1]))
+            results = np.vstack((results1[:-1],poses[-1]))
             print("section complete")
         else:
             print("Point accepted!")
@@ -102,9 +103,59 @@ def perpendicular_distance(current_pose, first_pose, last_pose):
         max_type: the axis that the maximum rotation occurs about
 """
 def angular_distance(current_pose, first_pose):
+    maximum = 0
+    max_type = ""
+    quat_current = np.array([
+        current_pose.orientation.x,
+        current_pose.orientation.y,
+        current_pose.orientation.z,
+        current_pose.orientation.w
+    ])
+
+    quat_first = np.array([
+        first_pose.orientation.x,
+        first_pose.orientation.y,
+        first_pose.orientation.z,
+        first_pose.orientation.w
+    ])
+    #normalize quaternions
+    norm = np.linalg.norm(quat_current)
+    quat_current /= norm
+    norm = np.linalg.norm(quat_first)
+    quat_first /= norm
+
+    current = quat_to_rotation_matrix(quat_current)
+    first = quat_to_rotation_matrix(quat_first)
+
+    relative_rotation = np.matmul(np.transpose(first), current)
+
+    #convert to relative rotations about each axis
+    rot_x = np.arctan2(relative_rotation[2][1], relative_rotation[1][1])
+    rot_y = np.arctan2(-relative_rotation[2][0], np.sqrt(relative_rotation[2][1]**2 + relative_rotation[2][2]**2))
+    rot_z = np.arctan2(relative_rotation[1][0], relative_rotation[0][0])
+
+    maximum = max(abs(rot_x),abs(rot_y),abs(rot_z)) 
+    """
+    print("Maximum: ", np.rad2deg(maximum))
+    print("Rotation about x: ", np.rad2deg(rot_x))
+    print("Rotation about y: ", np.rad2deg(rot_y))
+    print("Rotation about z: ", np.rad2deg(rot_z))
+    """
+    if (maximum == abs(rot_x)):
+        #maximum = r
+        max_type = "roll"
+    elif (maximum == abs(rot_y)):
+        #maximum = p
+        max_type = "pitch"
+    elif (maximum == abs(rot_z)):
+        #maximum = y
+        max_type = "yaw"
+
+
+    """
     difference = Pose()
     #get the difference between quaternion orientations
-    result = multiply_inv(current_pose, first_pose)
+    result = multiply_inv(first_pose, current_pose)
     difference.orientation.x = result[0]
     difference.orientation.y = result[1]
     difference.orientation.z = result[2]
@@ -118,12 +169,12 @@ def angular_distance(current_pose, first_pose):
     #determine maximum rotation
     max_type = ""
     maximum = max(abs(r),abs(p),abs(y)) 
-    """
+    """"""
     print("Maximum: ", np.rad2deg(maximum))
     print("Roll: ", np.rad2deg(r))
     print("Pitch: ", np.rad2deg(p))
     print("Yaw: ", np.rad2deg(y))
-    """
+    
 
     if (maximum == abs(r)):
         #maximum = r
@@ -135,7 +186,7 @@ def angular_distance(current_pose, first_pose):
         #maximum = y
         max_type = "yaw"
 
-    #print(max_type)
+    #print(max_type)"""
 
     return maximum, max_type
     
@@ -174,6 +225,16 @@ def quaternion_to_euler(q):
 
     return roll, pitch, yaw
 
+
+def quat_to_rotation_matrix(q):
+    x = q[0]
+    y = q[1]
+    z = q[2]
+    w = q[3]
+    return np.array([[1 - 2*y*y - 2*z*z, 2*x*y - 2*z*w, 2*x*z + 2*y*w],
+                     [2*(x*y + z*w), 1 - 2*x*x - 2*z*z, 2*y*z - 2*x*w],
+                     [2*(x*z - y*w), 2*y*z + 2*x*w, 1 - 2*x*x - 2*y*y]
+                    ])
 """
     Normalize Quaternion function
     Parameters:
@@ -182,11 +243,14 @@ def quaternion_to_euler(q):
         norm: the normalized quaternion
 """
 def normalize(quaternion):
-    magnitude = np.linalg.norm(quaternion)
-    norm = quaternion / magnitude
-    norm /= np.linalg.norm(norm)
+    x = quaternion.x
+    y = quaternion.y
+    z = quaternion.z
+    w = quaternion.w
+    q = np.array([w,x,y,z])
+    q /= np.linalg.norm(q)
 
-    return norm
+    return q
 
 
 """
