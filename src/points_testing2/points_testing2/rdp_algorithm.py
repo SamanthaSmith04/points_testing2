@@ -19,7 +19,7 @@ reasons = []
 def rdp_run(poses, epsilon, angleThreshold):
     max_dist = 0
     max_rotation = 0
-    rotIndex = 0
+    first_big_rot_index = 0
     index = 0
     d = 0
     for i in range(1, len(poses)-1):
@@ -29,8 +29,9 @@ def rdp_run(poses, epsilon, angleThreshold):
             max_dist = d
             index = i
         if r > max_rotation:
-            max_rotation = r
-            rotIndex = i 
+            if first_big_rot_index == 0 and r > angleThreshold:
+                first_big_rot_index = i
+                max_rotation = r
     #if there is a point that exceeds epsilon, split the list and run rdp on both halves
     if max_dist > epsilon: #GETTING TRAPPED HERE :/   
         print("Distance threshold exceeded!")     
@@ -43,16 +44,18 @@ def rdp_run(poses, epsilon, angleThreshold):
         
     #correct spot found
     else:
-        if max_rotation > angleThreshold: #HERE
+        if first_big_rot_index > 0: #HERE
             print("Angle threshold exceeded by ", (np.rad2deg(max_rotation) - np.rad2deg(angleThreshold)), " degrees!")
             print("the angle was ", np.rad2deg(max_rotation), " degrees about the ", t, " axis")
-            poses1 = poses[:rotIndex+1]
-            poses2 = poses[rotIndex:]
+            poses1 = poses[:first_big_rot_index]
+            poses2 = poses[first_big_rot_index-1:]
 
             results1 = rdp_run(poses1, epsilon, angleThreshold) 
-            #results2 = rdp_run(poses2, epsilon, angleThreshold)
-            
-            results = np.vstack((results1[:-1],poses[-1]))
+
+
+            results2 = rdp_run(poses2, epsilon, angleThreshold)
+
+            results = np.vstack((results1[:-1],results2))
             print("section complete")
         else:
             print("Point accepted!")

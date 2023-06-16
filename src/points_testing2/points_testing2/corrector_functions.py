@@ -96,13 +96,11 @@ def delta(points, corrections):
         max_min[cPos], type = rdp_algorithm.angular_distance(points.poses[index], corrections[cPos,0])
         while points.poses[index] != corrections[cPos+1,0]:
             angle, type = rdp_algorithm.angular_distance(points.poses[index], corrections[cPos,0])
-            print(angle)
             #print("comparing: \n" + points.poses[index].__str__() + "\n to \n" + corrections[cPos,0].__str__())
             #print("angle: " + angle.__str__())
             if (abs(angle) > abs(angles[cPos])):
                 angles[cPos] = angle
             elif (abs(angle) < abs(max_min[cPos])):
-                print("min")
                 max_min[cPos] = angle
             index += 1
     print(rdp_algorithm.reasons_for_change())
