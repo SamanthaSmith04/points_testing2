@@ -9,61 +9,56 @@ def main():
     print("RDP Implementation in python")
 
 """
+    Algorithm that implements the Ramer Douglas Peucker algorithm to downsample a set of Poses
+    The poses are downsampled by removing points that are within a certain distance of a line between two points
+    The algorithm is recursive, and will split the list of points into two subsets if a point is found that exceeds the distance threshold
+    To downsample Orientations, any orientations that have their rotation about each axis to be less than the threshold will be removed,
+    the algorithm calculates the angle between the original orientation and the corrected orientation to finds these rotations
+    
     Parameters:
         poses: a pose list to be processed
         epsilon: the maximum spacing between the original data points and the line between the correction points
         angleThreshold: the maximum angle between the original data points and the corrected data points about each axis
+    Returns:
+        results: a list of the corrected points
 """
-global reasons
-reasons = []
 def rdp_run(poses, epsilon, angleThreshold):
     max_dist = 0
-    max_rotation = 0
     first_big_rot_index = 0
-    index = 0
+    dist_index = 0
     d = 0
+    #iterate over all points in the subset to find the maximum perpendicular distance and the first section where the angle is too large
     for i in range(1, len(poses)-1):
         d = perpendicular_distance(poses[i], poses[0], poses[-1])
         r, t = angular_distance(poses[i], poses[0])
         if d > max_dist:
             max_dist = d
-            index = i
-        if r > max_rotation:
-            if first_big_rot_index == 0 and r > angleThreshold:
-                first_big_rot_index = i
-                max_rotation = r
+            dist_index = i
+        if first_big_rot_index == 0 and r > angleThreshold:
+            first_big_rot_index = i
     #if there is a point that exceeds epsilon, split the list and run rdp on both halves
-    if max_dist > epsilon: #GETTING TRAPPED HERE :/   
+    if max_dist > epsilon: 
         print("Distance threshold exceeded!")     
-        poses1 = poses[:index+1]
-        poses2 = poses[index:]
+        poses1 = poses[:dist_index+1]
+        poses2 = poses[dist_index:]
         results1 = rdp_run(poses1, epsilon, angleThreshold) 
         
         results2 = rdp_run(poses2, epsilon, angleThreshold)
-        results = np.vstack((results1[:-1],results2))
-        
-    #correct spot found
+        results = np.vstack((results1[:-1],results2)) 
     else:
-        if first_big_rot_index > 0: #HERE
-            print("Angle threshold exceeded by ", (np.rad2deg(max_rotation) - np.rad2deg(angleThreshold)), " degrees!")
-            print("the angle was ", np.rad2deg(max_rotation), " degrees about the ", t, " axis")
+        #if there is a point that exceeds the angle threshold, split the list and run rdp on both halves
+        if first_big_rot_index > 0:
             poses1 = poses[:first_big_rot_index]
             poses2 = poses[first_big_rot_index-1:]
 
             results1 = rdp_run(poses1, epsilon, angleThreshold) 
-
-
             results2 = rdp_run(poses2, epsilon, angleThreshold)
 
             results = np.vstack((results1[:-1],results2))
-            print("section complete")
+        #if all points in the segment are within the thresholds, return the first and last points
         else:
-            print("Point accepted!")
             results = np.vstack((poses[0],poses[-1]))
     return results
-    
-def reasons_for_change():
-    return reasons
 
 """
     Calculates the perpendicular distance between a point and a line segment in 3D space
@@ -71,6 +66,8 @@ def reasons_for_change():
         current_pose: point to be measured
         first_pose: first point of the line segment
         last_pose: last point of the line segment
+    Returns:
+        out: the perpendicular distance between the point and the line segment
 """
 def perpendicular_distance(current_pose, first_pose, last_pose):
 
@@ -130,105 +127,32 @@ def angular_distance(current_pose, first_pose):
     current = quat_to_rotation_matrix(quat_current)
     first = quat_to_rotation_matrix(quat_first)
 
+    #get rotation of current pose relative to first pose
     relative_rotation = np.matmul(np.transpose(first), current)
 
-    #convert to relative rotations about each axis
+    #convert to relative rotation about each axis
     rot_x = np.arctan2(relative_rotation[2][1], relative_rotation[1][1])
     rot_y = np.arctan2(-relative_rotation[2][0], np.sqrt(relative_rotation[2][1]**2 + relative_rotation[2][2]**2))
     rot_z = np.arctan2(relative_rotation[1][0], relative_rotation[0][0])
 
+    #determine maximum rotation about an axis
     maximum = max(abs(rot_x),abs(rot_y),abs(rot_z)) 
-    """
-    print("Maximum: ", np.rad2deg(maximum))
-    print("Rotation about x: ", np.rad2deg(rot_x))
-    print("Rotation about y: ", np.rad2deg(rot_y))
-    print("Rotation about z: ", np.rad2deg(rot_z))
-    """
     if (maximum == abs(rot_x)):
-        #maximum = r
         max_type = "roll"
     elif (maximum == abs(rot_y)):
-        #maximum = p
         max_type = "pitch"
     elif (maximum == abs(rot_z)):
-        #maximum = y
         max_type = "yaw"
-
-
-    """
-    difference = Pose()
-    #get the difference between quaternion orientations
-    result = multiply_inv(first_pose, current_pose)
-    difference.orientation.x = result[0]
-    difference.orientation.y = result[1]
-    difference.orientation.z = result[2]
-    difference.orientation.w = result[3]
-
-    #convert to euler angles
-    euler_angles = quaternion_to_euler(difference)
-    r = euler_angles[0]
-    p = euler_angles[1]
-    y = euler_angles[2]
-    #determine maximum rotation
-    max_type = ""
-    maximum = max(abs(r),abs(p),abs(y)) 
-    """"""
-    print("Maximum: ", np.rad2deg(maximum))
-    print("Roll: ", np.rad2deg(r))
-    print("Pitch: ", np.rad2deg(p))
-    print("Yaw: ", np.rad2deg(y))
-    
-
-    if (maximum == abs(r)):
-        #maximum = r
-        max_type = "roll"
-    elif (maximum == abs(p)):
-        #maximum = p
-        max_type = "pitch"
-    elif (maximum == abs(y)):
-        #maximum = y
-        max_type = "yaw"
-
-    #print(max_type)"""
 
     return maximum, max_type
-    
 
 """
-    Quaternion to Euler angles conversion function
+    Quaternion to rotation matrix function
     Parameters:
         q: the quaternion to be converted
     Returns:
-        roll: the roll angle
-        pitch: the pitch angle
-        yaw: the yaw angle
+        rotation_matrix: the rotation matrix made from q
 """
-def quaternion_to_euler(q):
-    x = q.orientation.x
-    y = q.orientation.y
-    z = q.orientation.z
-    w = q.orientation.w
-
-    #roll
-    sinr_cosp = 2 * (w * x + y * z)
-    cosr_cosp = 1 - 2 * (x * x + y * y)
-    roll = np.arctan2(sinr_cosp, cosr_cosp)
-
-    #pitch
-    sinp = 2 * (w * y - z * x)
-    if abs(sinp) >= 1:
-        pitch = np.sign(sinp) * np.pi/2.0
-    else:
-        pitch = np.arcsin(sinp)
-    
-    #yaw
-    siny_cosp = 2 * (w * z + x * y)
-    cosy_cosp = 1 - 2 * (y * y + z * z)
-    yaw = np.arctan2(siny_cosp, cosy_cosp)
-
-    return roll, pitch, yaw
-
-
 def quat_to_rotation_matrix(q):
     x = q[0]
     y = q[1]
@@ -238,49 +162,6 @@ def quat_to_rotation_matrix(q):
                      [2*(x*y + z*w), 1 - 2*x*x - 2*z*z, 2*y*z - 2*x*w],
                      [2*(x*z - y*w), 2*y*z + 2*x*w, 1 - 2*x*x - 2*y*y]
                     ])
-"""
-    Normalize Quaternion function
-    Parameters:
-        quaternion: the quaternion to be normalized
-    Returns:
-        norm: the normalized quaternion
-"""
-def normalize(quaternion):
-    x = quaternion.x
-    y = quaternion.y
-    z = quaternion.z
-    w = quaternion.w
-    q = np.array([w,x,y,z])
-    q /= np.linalg.norm(q)
-
-    return q
-
-
-"""
-    Quaternion multiplication function
-    Multiplies q0 by the inverse of q1
-    Parameters:
-        q0: the first quaternion
-        q1: the second quaternion
-"""
-def multiply_inv(q0,q1):
-
-    w0 = q0.orientation.w
-    x0 = q0.orientation.x
-    y0 = q0.orientation.y
-    z0 = q0.orientation.z
-
-    w1 = q1.orientation.w
-    x1 = -q1.orientation.x
-    y1 = -q1.orientation.y
-    z1 = -q1.orientation.z
-
-    w = w0 * w1 - x0 * x1 - y0 * y1 - z0 * z1
-    x = w0 * x1 + x0 * w1 + y0 * z1 - z0 * y1
-    y = w0 * y1 + y0 * w1 + z0 * x1 - x0 * z1
-    z = w0 * z1 + x0 * y1 - y0 * x1 + z0 * w1
-    return np.array([x,y,z,w])
-
 
 
 if __name__ == '__main__':
