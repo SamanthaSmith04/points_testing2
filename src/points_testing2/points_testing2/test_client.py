@@ -24,9 +24,11 @@ class TestClient(Node):
     def send_request(self):
         self.req.input_file = "points2.txt"
         self.req.epsilon = 0.05 #meters
-        self.req.angle_threshold = 95.0 #degrees
+        self.req.angle_threshold = 10.0 #degrees
         self.future = self.cli.call_async(self.req)
-
+"""
+    Publishes the PoseArray of the downsampled poses so it can be accessed by other programs (RVIZ)
+"""
 class PublishOrientationNode(Node):
     def __init__(self):
         super().__init__('publisher_node')
@@ -39,7 +41,6 @@ class PublishOrientationNode(Node):
     def timer_callback(self):
         if self.pose_array is not None:
             self.publisher_.publish(self.pose_array)
-            print("pub orientation \n")
             self.i += 1
 
     def set_pose_array(self, point_array):
@@ -47,8 +48,10 @@ class PublishOrientationNode(Node):
         self.pose_array = point_array
         self.pose_array.header = Header()
         self.pose_array.header.frame_id = "map"
-        print("usccess")
-        
+
+"""
+    Publishes the downsampled positions and lines so they can be accessed by other programs (RVIZ)
+"""
 class PublishPositionNode(Node):
     def __init__(self):
         super().__init__('publisher_node')
@@ -64,14 +67,11 @@ class PublishPositionNode(Node):
     def timer_callback(self):
         if self.pose_array is not None:
             self.publisher_.publish(self.points)
-            
-            print("pub pos \n")
             self.i += 1
     
     def timer_callback_lines(self):
         if self.pose_array is not None:
             self.publisher_lines.publish(self.lines)
-            print("pub lines \n")
             self.j += 1
 
     def set_points(self, point_array):
@@ -135,6 +135,9 @@ class PublishPositionNode(Node):
             line.points.append(end_point)
             self.lines.markers.append(line)
 
+"""
+    Publishes the initial poses and lines so they can be accessed by other programs to compare to the downsampled dataset (RVIZ)
+"""
 class PublishInitialPoses(Node):
     def __init__(self):
         super().__init__('initial_publisher_node')
@@ -153,20 +156,16 @@ class PublishInitialPoses(Node):
     def timer_callback(self):
         if self.pose_array is not None:
             self.publisher_.publish(self.points)
-            
-            print("pub initial pos \n")
             self.i += 1
     
     def timer_callback_lines(self):
         if self.pose_array is not None:
             self.publisher_lines.publish(self.lines)
-            print("pub iniital lines \n")
             self.j += 1
 
     def timer_callback_orientation(self):
         if self.pose_array is not None:
             self.publisher_orientation.publish(self.pose_array)
-            print("pub initial orientation \n")
             self.k += 1
 
     def set_points(self):
@@ -244,9 +243,7 @@ def main(args=None):
     pub_initial_to_rviz = PublishInitialPoses()
 
     while rclpy.ok():
-        print("hello")
         rclpy.spin_once(test_client) #test code is stopping here
-        print("test")
         if test_client.future.done():
             try:
                 response = test_client.future.result()
@@ -254,16 +251,17 @@ def main(args=None):
                 test_client.get_logger().info(
                     'Service call failed %r' % (e,))
             else:
-                print(response.corrected_poses)
-                print("points corrected!")
+                print("Poses corrected!")
                 global point_array
-            
                 point_array = response.corrected_poses
+                print("Publishing Corrected Poses\n")
                 pub_or_to_rviz.set_pose_array(point_array)
                 pub_pos_to_rviz.set_points(point_array)
+                print("Publishing Initial Poses\n")
                 pub_initial_to_rviz.set_points()
-                
+                print("Poses Published!\n")
             break
+
     executor = rclpy.executors.SingleThreadedExecutor()
     executor.add_node(pub_or_to_rviz)
     executor.add_node(pub_pos_to_rviz)
