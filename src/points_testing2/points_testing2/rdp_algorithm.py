@@ -25,26 +25,26 @@ def main():
 def rdp_run(poses, epsilon, angleThreshold):
     max_dist = 0
     first_big_rot_index = 0
-    rot_value = 0
     dist_index = 0
     d = 0
     #iterate over all points in the subset to find the maximum perpendicular distance and the first section where the angle is too large
-    for i in range(1, len(poses)-1):
+    for i in range(1, len(poses)):
         d = perpendicular_distance(poses[i], poses[0], poses[-1])
         r, t = angular_distance(poses[i], poses[0])
         if d > max_dist:
             max_dist = d
             dist_index = i
         if first_big_rot_index == 0 and r >= angleThreshold:
-            first_big_rot_index = i
-            rot_value = r
+            first_big_rot_index = i - 1 #go to the pose before to ensure that the value is less than the threshold, a new pose will be created at this positon
+            r, t = angular_distance(poses[i-1], poses[0])
+            print(np.rad2deg(r))
     #if there is a point that exceeds epsilon, split the list and run rdp on both halves
     if max_dist > epsilon: 
         poses1 = poses[:dist_index+1]
         poses2 = poses[dist_index:]
-        results1 = rdp_run(poses1, epsilon, angleThreshold) 
+        results1 = rdp_run(poses1, epsilon, angleThreshold) #check if any points between flagged point and previous correction are within threshold
         
-        results2 = rdp_run(poses2, epsilon, angleThreshold)
+        results2 = rdp_run(poses2, epsilon, angleThreshold) #move onto next segment
         results = np.vstack((results1[:-1],results2)) 
     else:
         #if there is a point that exceeds the angle threshold, split the list and run rdp on both halves
@@ -52,10 +52,10 @@ def rdp_run(poses, epsilon, angleThreshold):
             poses1 = poses[:first_big_rot_index+1]
             poses2 = poses[first_big_rot_index:]
 
-            results1 = rdp_run(poses1, epsilon, angleThreshold) 
-            results2 = rdp_run(poses2, epsilon, angleThreshold)
+            results1 = rdp_run(poses1, epsilon, angleThreshold) #check if any points between flagged point and previous correction are within threshold
+            results2 = rdp_run(poses2, epsilon, angleThreshold) #move onto next segment
 
-            results = np.vstack((results1[:-1],results2))
+            results = np.vstack((results1[:-1], results2))
         #if all points in the segment are within the thresholds, return the first and last points
         else:
             results = np.vstack((poses[0],poses[-1]))
