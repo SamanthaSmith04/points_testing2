@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
-#An altered implementation of the Ramer Douglas Peucker algorithm that allows for 
-#downsampling of both position and orientation from a set of poses
+
+# An altered implementation of the Ramer Douglas Peucker algorithm that allows for 
+# downsampling of both position and orientation from a set of poses
 #Author: Samantha Smith, smith.15485@osu.edu
 
 import numpy as np
@@ -11,10 +12,11 @@ def main():
 
 """
     Algorithm that implements the Ramer Douglas Peucker algorithm to downsample a set of Poses
+
     The poses are downsampled by removing points that are within a certain distance of a line between two points
-    The algorithm is recursive, and will split the list of points into two subsets if a point is found that exceeds the distance threshold
-    To downsample Orientations, any orientations that have their rotation about each axis to be less than the threshold will be removed,
-    the algorithm calculates the angle between the original orientation and the corrected orientation to finds these rotations
+    The algorithm is recursive, and will split the list of points into two subsets if a point is found that exceeds the distance threshold,
+    then within those segments, the algorithm will check for points that exceed the angle threshold and if so, split the list again
+    This process will continue until all points are within the thresholds
     
     Parameters:
         poses: a pose list to be processed

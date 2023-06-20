@@ -19,7 +19,6 @@ setup(
     maintainer_email='smith.15485@osu.edu',
     description='A program that downsamples a large dataset of Poses by implementing the Ramer Douglas Peucker algorithm with alterations to accomodate orientations.',
     license='Apache License 2.0',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
             'rdp_algorithm = points_testing2.rdp_algorithm:main',

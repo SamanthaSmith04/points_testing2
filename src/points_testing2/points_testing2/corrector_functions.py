@@ -32,8 +32,6 @@ def main():
 """
 def downsample(epsilon, angle_threshold, initial_poses):
     startTime = time.perf_counter()
-
-
     
     print("Processing " + len(initial_poses.poses).__str__() + " points...")
     angle_threshold = np.deg2rad(angle_threshold) #convert angle threshold to radians
