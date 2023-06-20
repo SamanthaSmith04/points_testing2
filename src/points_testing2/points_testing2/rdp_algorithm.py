@@ -6,6 +6,7 @@ from geometry_msgs.msg import Pose
 
 def main():
     print("RDP Implementation in python")
+    print("Should be called with rdp_run(pose_array, epsilon, angleThreshold)")
 
 """
     Algorithm that implements the Ramer Douglas Peucker algorithm to downsample a set of Poses
@@ -24,6 +25,7 @@ def main():
 def rdp_run(poses, epsilon, angleThreshold):
     max_dist = 0
     first_big_rot_index = 0
+    rot_value = 0
     dist_index = 0
     d = 0
     #iterate over all points in the subset to find the maximum perpendicular distance and the first section where the angle is too large
@@ -33,11 +35,11 @@ def rdp_run(poses, epsilon, angleThreshold):
         if d > max_dist:
             max_dist = d
             dist_index = i
-        if first_big_rot_index == 0 and r > angleThreshold:
+        if first_big_rot_index == 0 and r >= angleThreshold:
             first_big_rot_index = i
+            rot_value = r
     #if there is a point that exceeds epsilon, split the list and run rdp on both halves
     if max_dist > epsilon: 
-        print("Distance threshold exceeded!")     
         poses1 = poses[:dist_index+1]
         poses2 = poses[dist_index:]
         results1 = rdp_run(poses1, epsilon, angleThreshold) 
@@ -46,9 +48,9 @@ def rdp_run(poses, epsilon, angleThreshold):
         results = np.vstack((results1[:-1],results2)) 
     else:
         #if there is a point that exceeds the angle threshold, split the list and run rdp on both halves
-        if first_big_rot_index > 0:
-            poses1 = poses[:first_big_rot_index]
-            poses2 = poses[first_big_rot_index-1:]
+        if first_big_rot_index != 0:
+            poses1 = poses[:first_big_rot_index+1]
+            poses2 = poses[first_big_rot_index:]
 
             results1 = rdp_run(poses1, epsilon, angleThreshold) 
             results2 = rdp_run(poses2, epsilon, angleThreshold)
