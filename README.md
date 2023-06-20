@@ -40,11 +40,11 @@ Angle Threshold: 35 degrees<br><br>
 
 Console Output: <br>
 <img width="50%" alt="Console info for delta values" src="https://github.com/SamanthaSmith04/points_testing2/assets/82625799/793ff18f-74d5-439c-b3bc-5a37df88a68f"><br>
-Note: The first section of orientations shows the difference between the correction poses, the second set with the Delta values shows the maximum orientation from the original dataset between the two poses
+Note: The first section of orientations shows the difference between the correction poses, and the second set with the Delta values shows the maximum orientation from the original dataset between the two poses
 </p>
 
 <h1>Changes from original repo</h1>
 <p>
-points_testing was originally based in ROS and was called using launch files, the new code is based in ROS 2 and is done through a service to provide better interaction with other parts of the project.
+points_testing was originally based in ROS and was called using launch files, the new code is based in ROS 2 and is done through a service to provide better interaction with other parts of the project.<br>
 The original code could only handle downsampling positions and had no ability to downsample orientations. With the update to the code to take in Poses, the code can now fully downsample a PoseArray
 </p>
