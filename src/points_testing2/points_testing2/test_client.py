@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+#A group of nodes that can be used to test the downsample service
+#Author: Samantha Smith, smith.15485@osu.edu
 
 import rclpy
 from rclpy.node import Node
@@ -21,8 +23,8 @@ class TestClient(Node):
 
     def send_request(self):
         self.req.input_file = "points2.txt"
-        self.req.epsilon = 0.1 #meters
-        self.req.angle_threshold = 35.0 #degrees
+        self.req.epsilon = 0.05 #meters
+        self.req.angle_threshold = 95.0 #degrees
         self.future = self.cli.call_async(self.req)
 
 class PublishOrientationNode(Node):

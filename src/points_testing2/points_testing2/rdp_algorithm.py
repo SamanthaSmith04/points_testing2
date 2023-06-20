@@ -1,8 +1,9 @@
 #! /usr/bin/env python3
-#python implementation of the ramer douglas peucker algorithm
+#An altered implementation of the Ramer Douglas Peucker algorithm that allows for 
+#downsampling of both position and orientation from a set of poses
+#Author: Samantha Smith, smith.15485@osu.edu
 
 import numpy as np
-from geometry_msgs.msg import Pose
 
 def main():
     print("RDP Implementation in python")

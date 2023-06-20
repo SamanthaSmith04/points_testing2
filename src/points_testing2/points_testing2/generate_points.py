@@ -1,4 +1,9 @@
+#! /usr/bin/env python3
+#A program that is used for testing purposes to generate datasets of poses for testing
+#Author: Samantha Smith, smith.15485@osu.edu
+
 import numpy as np
+
 def main():
     file = open("line.txt", "w")
     """
@@ -41,8 +46,8 @@ def generate_raster(inPointSpacing):
     quaternion = np.zeros((len(xpoints),4))
     for i in range(len(xpoints)):
         angle = i /10
-        quaternion[i] = [i/len(xpoints), (5*i)/(len(xpoints)**2), (2*i/len(xpoints))**2,1.0]  # Quaternion values
-        #quaternion[i] = [np.sin(angle)**2, np.cos(angle), np.cos(angle),1.0]  # Quaternion values
+        #quaternion[i] = [i/len(xpoints), (5*i)/(len(xpoints)**2), (2*i/len(xpoints))**2,1.0]  # Quaternion values
+        quaternion[i] = [np.sin(angle)**2, np.cos(angle), np.cos(angle),1.0]  # Quaternion values
     return xpoints, ypoints, zpoints, quaternion
 
 def generate_line(inPointSpacing):

@@ -1,4 +1,7 @@
 #! /usr/bin/env python3
+#A node that sets up a service to downsample a set of poses
+#Author: Samantha Smith, smith.15485@osu.edu
+
 import rclpy
 from rclpy.node import Node
 from services.srv import DownsampleSrvInfo

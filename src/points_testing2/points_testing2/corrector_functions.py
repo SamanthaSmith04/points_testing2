@@ -1,4 +1,6 @@
 #! /usr/bin/env python3
+#A collection of functions used to downsample a set of poses and report the difference between the original and corrected poses
+#Author: Samantha Smith, smith.15485@osu.edu
 
 import numpy as np
 from points_testing2 import rdp_algorithm
@@ -16,7 +18,7 @@ def main():
     print("=====================================================")
     print("                     Point Tests                     ")
     print("=====================================================")
-    #t = downsample(0.05, 20.0, "points2.txt")
+    print("Should be called with downsample(epsilon, angleThreshold, inputFileName)")
 
 """
     Downsample function
@@ -24,7 +26,7 @@ def main():
     Parameters:
         epsilon: the maximum spacing between the original data points and the line between the correction points
         angleThreshold: the maximum angle between the original data points and the corrected data points about each axis
-        inputFileName: the name of the file to read points from
+        inputFileName: the name of the file to read points from #TODO - change to a PoseArray
     Returns:
         pose_array: a geometry_msgs.msg PoseArray of the corrected poses
 """
@@ -32,7 +34,7 @@ def downsample(epsilon, angleThreshold, inputFileName):
     startTime = time.perf_counter()
 
     #Read in the points from a file
-    ##WILL BE REMOVED IN THE FUTURE AND INSTEAD READ IN A POSEARRAY FROM A THE SERVICE REQUEST
+    ##TODO - WILL BE REMOVED IN THE FUTURE AND INSTEAD READ IN A POSEARRAY FROM A THE SERVICE REQUEST
     if (inputFileName != ""):
         points = PoseArray()
         points.poses = get_points_from_file(inputFileName)
@@ -60,13 +62,13 @@ def downsample(epsilon, angleThreshold, inputFileName):
 
     print("Number of points used in correction: " + len(corrections).__str__())
     #print out the delta values
-    ##TEMPORARY PRINT MAY BE SENT AS A SERVICE RESPONSE IN THE FUTURE
+    ##TODO - TEMPORARY PRINT MAY BE SENT AS A SERVICE RESPONSE IN THE FUTURE
     print("Maximum Values between each correction pose:")
     for i in range(len(max_dist)):
         print("Delta " + (i+1).__str__() + ": " + max_dist[i].__str__())
         print("Max Angle " + (i+1).__str__() + ": " + np.rad2deg(max_angle[i]).__str__())
     
-    ##TEMPORARY PRINT CORRECTIONS
+    ##TODO - TEMPORARY PRINT CORRECTIONS
     for i in range(len(pose_array.poses)):
         print("Pose " + (i+1).__str__() + ":")
         print("Position: " + pose_array.poses[i].position.__str__())
@@ -74,7 +76,7 @@ def downsample(epsilon, angleThreshold, inputFileName):
 
     print("Done!")
     
-    return pose_array#, max_dist
+    return pose_array
     
 
 """
