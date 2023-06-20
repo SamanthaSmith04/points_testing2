@@ -1,5 +1,4 @@
 #! /usr/bin/env python3
-#TODO FIX FUNCTION HEADERS
 
 import numpy as np
 from points_testing2 import rdp_algorithm

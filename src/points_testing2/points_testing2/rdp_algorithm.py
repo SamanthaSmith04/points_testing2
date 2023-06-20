@@ -2,7 +2,6 @@
 #python implementation of the ramer douglas peucker algorithm
 
 import numpy as np
-import math
 from geometry_msgs.msg import Pose
 
 def main():

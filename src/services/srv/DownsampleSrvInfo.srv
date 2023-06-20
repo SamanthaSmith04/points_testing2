@@ -1,5 +1,6 @@
 string input_file
 float64 epsilon
+float64 angle_threshold
 ---
 geometry_msgs/PoseArray corrected_poses
-float64[] delta_values
+#float64[] delta_values
