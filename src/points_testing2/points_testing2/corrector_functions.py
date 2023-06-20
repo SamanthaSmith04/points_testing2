@@ -73,8 +73,6 @@ def downsample(epsilon, angleThreshold, inputFileName):
         print("Pose " + (i+1).__str__() + ":")
         print("Position: " + pose_array.poses[i].position.__str__())
         print("Orientation: " + pose_array.poses[i].orientation.__str__())
-
-    print("Done!")
     
     return pose_array
     
@@ -90,7 +88,6 @@ def downsample(epsilon, angleThreshold, inputFileName):
 def delta(points, corrections):
     index = 0
     corr_len = len(corrections) -1
-    print(":)")
     dist = np.zeros(corr_len)
     angles = np.zeros(corr_len)
     #calculate the delta values for distance for each correction pose
