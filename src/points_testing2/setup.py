@@ -6,7 +6,7 @@ package_name = 'points_testing2'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='0.1.0',
     packages=[package_name],
     data_files=[
         ('share/ament_index/resource_index/packages',
@@ -17,8 +17,8 @@ setup(
     zip_safe=True,
     maintainer='Samantha Smith',
     maintainer_email='smith.15485@osu.edu',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    description='A program that downsamples a large dataset of Poses by implementing the Ramer Douglas Peucker algorithm with alterations to accomodate orientations.',
+    license='Apache License 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
