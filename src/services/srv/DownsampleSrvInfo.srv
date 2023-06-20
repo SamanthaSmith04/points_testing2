@@ -1,6 +1,13 @@
-string input_file
-float64 epsilon
-float64 angle_threshold
+#A service message for downsampling a large dataset of poses to a smaller set of poses that are still representative of the original dataset
+#Samantha Smith, smith.15485@osu.edu
+
+#Requests
+string input_file #A list of poses in a .txt file following the formatting: x y z r p y w, with each pose on a new line
+
+float64 epsilon #The maximum perpendicular distance that a corrected pose can deviate from the original poses
+
+float64 angle_threshold #The maximum rotation about any axis that a corrected pose can deviate from the original poses
+
 ---
-geometry_msgs/PoseArray corrected_poses
-#float64[] delta_values
+#Response
+geometry_msgs/PoseArray corrected_poses #A PoseArray of the downsampled poses
