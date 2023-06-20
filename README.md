@@ -3,8 +3,8 @@
 <p>This code is set up as a ROS 2 Service.<br>This service has 3 requests:
 <ul>
   <li><code>input_file (string)</code> - The PoseArray to be corrected</li>
-  <li><code>epsilon (float64)</code> - The maximum amount that the perpendicular distance between the original points and the corrected points can vary</li>
-  <li><code>angle_threshold (float64)</code> - The maximum amount about any axis that the original orientations can vary from the corrected orientations</li>
+  <li><code>epsilon (float64)</code> - (meters) The maximum amount that the perpendicular distance between the original points and the corrected points can vary</li>
+  <li><code>angle_threshold (float64)</code> - (degrees) The maximum amount about any axis that the original orientations can vary from the corrected orientations</li>
 </ul>
 
 The service has 1 response:
