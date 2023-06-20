@@ -7,7 +7,7 @@ from geometry_msgs.msg import PoseArray
 from geometry_msgs.msg import Pose
 
 global file_path
-file_path = "/home/samubuntu/AA_DEVEL/ws_points_testing2/src/points_testing2/points_testing2/test_values"
+file_path = "/home/samubuntu/AA_DEVEL/ws_points_testing2/src/points_testing2/points_testing2/test_values/"
 
 
 
