@@ -18,41 +18,34 @@ def main():
     print("=====================================================")
     print("                     Point Tests                     ")
     print("=====================================================")
-    print("Should be called with downsample(epsilon, angleThreshold, inputFileName)")
+    print("Should be called with downsample(epsilon, angle_threshold, inputFileName)")
 
 """
     Downsample function
     Reads/Generates a list of Poses to process with the rdp algorithm
     Parameters:
         epsilon: the maximum spacing between the original data points and the line between the correction points
-        angleThreshold: the maximum angle between the original data points and the corrected data points about each axis
-        inputFileName: the name of the file to read points from #TODO - change to a PoseArray
+        angle_threshold: the maximum angle between the original data points and the corrected data points about each axis
+        initial_poses: a PoseArray of poses to be downsampled
     Returns:
         pose_array: a geometry_msgs.msg PoseArray of the corrected poses
 """
-def downsample(epsilon, angleThreshold, inputFileName):
+def downsample(epsilon, angle_threshold, initial_poses):
     startTime = time.perf_counter()
 
-    #Read in the points from a file
-    ##TODO - WILL BE REMOVED IN THE FUTURE AND INSTEAD READ IN A POSEARRAY FROM A THE SERVICE REQUEST
-    if (inputFileName != ""):
-        points = PoseArray()
-        points.poses = get_points_from_file(inputFileName)
-    else:
-        print("Invalid file name!")
-        exit()
+
     
-    print("Processing " + len(points.poses).__str__() + " points...")
-    angleThreshold = np.deg2rad(angleThreshold) #convert angle threshold to radians
+    print("Processing " + len(initial_poses.poses).__str__() + " points...")
+    angle_threshold = np.deg2rad(angle_threshold) #convert angle threshold to radians
     
     #run the rdp algorithm on the poses
-    corrections = rdp_algorithm.rdp_run(points.poses, epsilon, angleThreshold)
+    corrections = rdp_algorithm.rdp_run(initial_poses.poses, epsilon, angle_threshold)
     
     #calculate the difference between the original poses and the corrected poses
     print("Calculating delta values...")
-    max_dist, max_angle = delta(points, corrections)
-    endTime = time.perf_counter()
-    print("Time to run: " + (endTime - startTime).__str__() + "s")
+    max_dist, max_angle = delta(initial_poses, corrections)
+    end_time = time.perf_counter()
+    print("Time to run: " + (end_time - startTime).__str__() + "s")
 
     print("Reformatting data...")
     #write corrected points to a pose array
@@ -67,12 +60,6 @@ def downsample(epsilon, angleThreshold, inputFileName):
     for i in range(len(max_dist)):
         print("Delta " + (i+1).__str__() + ": " + max_dist[i].__str__())
         print("Max Angle " + (i+1).__str__() + ": " + np.rad2deg(max_angle[i]).__str__())
-    
-    ##TODO - TEMPORARY PRINT CORRECTIONS
-    for i in range(len(pose_array.poses)):
-        print("Pose " + (i+1).__str__() + ":")
-        print("Position: " + pose_array.poses[i].position.__str__())
-        print("Orientation: " + pose_array.poses[i].orientation.__str__())
     
     return pose_array
     
@@ -113,33 +100,6 @@ def delta(points, corrections):
 
     print("Delta values calculated!")
     return dist, angles
-
-"""
-    Read points from a file
-    Parameters:
-        inputFileName: the name of the file to read from
-"""
-def get_points_from_file(inputFileName):
-
-    poses_array = []
-    #read in data from the input file
-    print("Reading in data from " + inputFileName + "...")
-    inFile = open(file_path + inputFileName, "r")
-    for line in inFile:
-        current_pose = Pose()
-    
-        line = line.split()
-
-        current_pose.position.x = float(line[0])
-        current_pose.position.y = float(line[1])
-        current_pose.position.z = float(line[2])
-        current_pose.orientation.x = float(line[3])
-        current_pose.orientation.y = float(line[4])
-        current_pose.orientation.z = float(line[5])
-        current_pose.orientation.w = float(line[6])
-        poses_array.append(current_pose)
-    inFile.close()
-    return poses_array
 
 """
     Write corrections to a file

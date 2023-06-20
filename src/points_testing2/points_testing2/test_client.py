@@ -6,7 +6,6 @@ import rclpy
 from rclpy.node import Node
 from services.srv import DownsampleSrvInfo
 from geometry_msgs.msg import PoseArray
-from geometry_msgs.msg import Pose
 from std_msgs.msg import Header
 from visualization_msgs.msg import MarkerArray
 from visualization_msgs.msg import Marker
@@ -22,7 +21,7 @@ class TestClient(Node):
         self.req = DownsampleSrvInfo.Request()
 
     def send_request(self):
-        self.req.input_file = "points2.txt"
+        self.req.initial_poses = PoseArray() ##TODO: THIS WILL BE UPDATED WHEN THE SOURCE OF THE POSES IS CLEAR
         self.req.epsilon = 0.05 #meters
         self.req.angle_threshold = 10.0 #degrees
         self.future = self.cli.call_async(self.req)

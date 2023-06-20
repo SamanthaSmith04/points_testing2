@@ -15,7 +15,7 @@ class DownsampleService(Node):
     
     def downsample_callback(self, request, response):
         self.get_logger().info('Incoming request\n')
-        response.corrected_poses = corrector_functions.downsample(request.epsilon, request.angle_threshold, request.input_file)
+        response.corrected_poses = corrector_functions.downsample(request.epsilon, request.angle_threshold, request.initial_poses)
         print("Complete! Response Sent \n")
         return response
     
