@@ -36,8 +36,6 @@ def rdp_run(poses, epsilon, angleThreshold):
             dist_index = i
         if first_big_rot_index == 0 and r >= angleThreshold:
             first_big_rot_index = i - 1 #go to the pose before to ensure that the value is less than the threshold, a new pose will be created at this positon
-            r, t = angular_distance(poses[i-1], poses[0])
-            print(np.rad2deg(r))
     #if there is a point that exceeds epsilon, split the list and run rdp on both halves
     if max_dist > epsilon: 
         poses1 = poses[:dist_index+1]

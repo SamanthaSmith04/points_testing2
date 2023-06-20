@@ -16,7 +16,7 @@ def main():
     print("=====================================================")
     print("                     Point Tests                     ")
     print("=====================================================")
-    t = downsample(0.05, 20.0, "points2.txt")
+    #t = downsample(0.05, 20.0, "points2.txt")
 
 """
     Downsample function
@@ -61,6 +61,7 @@ def downsample(epsilon, angleThreshold, inputFileName):
     print("Number of points used in correction: " + len(corrections).__str__())
     #print out the delta values
     ##TEMPORARY PRINT MAY BE SENT AS A SERVICE RESPONSE IN THE FUTURE
+    print("Maximum Values between each correction pose:")
     for i in range(len(max_dist)):
         print("Delta " + (i+1).__str__() + ": " + max_dist[i].__str__())
         print("Max Angle " + (i+1).__str__() + ": " + np.rad2deg(max_angle[i]).__str__())
@@ -70,6 +71,8 @@ def downsample(epsilon, angleThreshold, inputFileName):
         print("Pose " + (i+1).__str__() + ":")
         print("Position: " + pose_array.poses[i].position.__str__())
         print("Orientation: " + pose_array.poses[i].orientation.__str__())
+
+    print("Done!")
     
     return pose_array#, max_dist
     
@@ -103,8 +106,9 @@ def delta(points, corrections):
             if (abs(angle) > abs(angles[cPos])):
                 angles[cPos] = angle
             index += 1
+    print("Maximum angle between each correction pose:")
     for cPos in range(corr_len): 
-        angle_between_poses = rdp_algorithm.angular_distance(corrections[cPos,0], corrections[cPos+1,0])
+        angle_between_poses = rdp_algorithm.angular_distance(corrections[cPos+1,0], corrections[cPos,0])
         angle = np.degrees(angle_between_poses[0])
         print("Max rotation about the ", angle_between_poses[1], " between poses ",cPos+1, " and ",(cPos+2), ": ", angle)
 

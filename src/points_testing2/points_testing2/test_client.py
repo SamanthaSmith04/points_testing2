@@ -21,8 +21,8 @@ class TestClient(Node):
 
     def send_request(self):
         self.req.input_file = "points2.txt"
-        self.req.epsilon = 0.1
-        self.req.angle_threshold = 60.0 #degrees
+        self.req.epsilon = 0.1 #meters
+        self.req.angle_threshold = 35.0 #degrees
         self.future = self.cli.call_async(self.req)
 
 class PublishOrientationNode(Node):
