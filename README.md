@@ -18,4 +18,11 @@ When the service is called, the code follows this logic to downsample the poses:
 3. Once a segment has been determined as valid for distance from the original points, the segment is then evaluated for how much the orientation varies from the original set of poses. If a point is found where the rotation relative to each axis is greater than the threshold, the pose list will be split at that point's index, and steps 1-3 will be repeated until an orientation is found that is less than the threshold
 4. Once all positions are checked and valid, the code will move on to the next segment until the end of the list is reached and the result array is outputted
 
+<br>
+Here is an example of a raster dataset that is downsampled. The orientations of the original raster were set to vary up to 40 degrees
+<img width="100%" alt="Example of code that downsamples a large set of poses" src="https://github.com/SamanthaSmith04/points_testing2/assets/82625799/177f55f9-3371-415f-9e64-0274fa743438">
+Original PoseArray: 2995 poses, Corrected PoseArray: 8 poses<br>
+Time to complete: ~1 second<br>
+Epsilon: 0.05m<br>
+Angle Threshold: 35 degrees
 </p>
