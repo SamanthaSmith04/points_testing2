@@ -1,4 +1,4 @@
-# points_testing2
+# Points Testing 2
 <p>A program building off of the concept from my other repo points_testing. Implements the Ramer Douglas Peucker algorithm to downsample a set of Poses (containing Position and Orientation) in order to simplify a path bound by two different constraints. These constriants are the maximum perpendicular distance that the original points can vary from the corrected points, and the maximum angle about any axis that the original orientations can vary from the corrected orientations.</p>
 
 <h1>Dependecies</h1>
@@ -41,5 +41,10 @@ Angle Threshold: 35 degrees<br><br>
 Console Output: <br>
 <img width="50%" alt="Console info for delta values" src="https://github.com/SamanthaSmith04/points_testing2/assets/82625799/793ff18f-74d5-439c-b3bc-5a37df88a68f"><br>
 Note: The first section of orientations shows the difference between the correction poses, the second set with the Delta values shows the maximum orientation from the original dataset between the two poses
+</p>
 
+<h1>Changes from original repo</h1>
+<p>
+points_testing was originally based in ROS and was called using launch files, the new code is based in ROS 2 and is done through a service to provide better interaction with other parts of the project.
+The original code could only handle downsampling positions and had no ability to downsample orientations. With the update to the code to take in Poses, the code can now fully downsample a PoseArray
 </p>
