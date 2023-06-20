@@ -24,8 +24,10 @@ Here is an example of a raster dataset that is downsampled. The orientations of 
 Original PoseArray: 2995 poses, Corrected PoseArray: 8 poses<br>
 Time to complete: ~1 second<br>
 Epsilon: 0.05m<br>
-Angle Threshold: 35 degrees<be>
-<img width="695" alt="Console info for delta values" src="https://github.com/SamanthaSmith04/points_testing2/assets/82625799/793ff18f-74d5-439c-b3bc-5a37df88a68f">
+Angle Threshold: 35 degrees<br><br>
+
+Console Output: <br>
+<img width="50%" alt="Console info for delta values" src="https://github.com/SamanthaSmith04/points_testing2/assets/82625799/793ff18f-74d5-439c-b3bc-5a37df88a68f"><br>
 Note: The first section of orientations shows the difference between the correction poses, the second set with the Delta values shows the maximum orientation from the original dataset between the two poses
 
 </p>
