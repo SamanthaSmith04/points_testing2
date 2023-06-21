@@ -4,14 +4,14 @@
 
 import rclpy
 from rclpy.node import Node
-from services.srv import DownsampleSrvInfo
+from services.srv import DownsampleSrv
 from points_testing2 import corrector_functions
 
 
 class DownsampleService(Node):
     def __init__(self):
         super().__init__('downsample_service')
-        self.srv = self.create_service(DownsampleSrvInfo, 'downsample', self.downsample_callback)
+        self.srv = self.create_service(DownsampleSrv, 'downsample', self.downsample_callback)
     
     def downsample_callback(self, request, response):
         self.get_logger().info('Incoming request\n')

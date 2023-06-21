@@ -4,7 +4,7 @@
 
 import rclpy
 from rclpy.node import Node
-from services.srv import DownsampleSrvInfo
+from services.srv import DownsampleSrv
 from geometry_msgs.msg import PoseArray
 from std_msgs.msg import Header
 from visualization_msgs.msg import MarkerArray
@@ -15,10 +15,10 @@ from points_testing2 import corrector_functions
 class TestClient(Node): 
     def __init__(self):
         super().__init__('test_client')
-        self.cli = self.create_client(DownsampleSrvInfo, 'downsample')
+        self.cli = self.create_client(DownsampleSrv, 'downsample')
         while not self.cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('service not available, waiting again...')
-        self.req = DownsampleSrvInfo.Request()
+        self.req = DownsampleSrv.Request()
 
     def send_request(self):
         self.req.initial_poses = PoseArray() ##TODO: THIS WILL BE UPDATED WHEN THE SOURCE OF THE POSES IS CLEAR
