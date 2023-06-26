@@ -1,5 +1,7 @@
 # Points Testing 2
-<p>A program building off of the concept from my other repo points_testing. Implements the Ramer Douglas Peucker algorithm to downsample a set of Poses (containing Position and Orientation) in order to simplify a path bound by two different constraints. These constriants are the maximum perpendicular distance that the original points can vary from the corrected points, and the maximum angle about any axis that the original orientations can vary from the corrected orientations.</p>
+<p>A program building off of the concept from my other repo points_testing. Implements the Ramer Douglas Peucker algorithm to downsample a set of Poses (containing Position and Orientation) in order to simplify a path bound by two different constraints. These constriants are the maximum perpendicular distance that the original points can vary from the corrected points, and the maximum angle about any axis that the original orientations can vary from the corrected orientations. <br>
+Currently reads the points from a file, but in the pose_array_input branch it can take in a geometry_msgs/PoseArray
+</p>
 
 <h1>Dependecies</h1>
 <p>Code is written to work for ROS 2 Foxy/Humble<br>
